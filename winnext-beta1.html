@@ -11,6 +11,11 @@
             box-sizing: border-box;
         }
 
+        a {
+            color: #09f;
+            text-decoration: none;
+        }
+
         body {
             font-family: 'Segoe UI', 'Microsoft YaHei', 'PingFang SC', system-ui, sans-serif;
             background: #f0f2f5;
@@ -636,7 +641,7 @@
         <div class="toast-card">
             <div class="toast-icon">🤝</div>
             <h2>协议签署成功</h2>
-            <p>感谢您签署《Windows NEXT Beta 版测试保密协议》。<br />我们将带您前往下载Beta版本的页面，请遵守协议中的所有条款。</p>
+            <p>感谢您签署《Windows NEXT Beta 版测试保密协议》。<br />我们将带您前往下载Beta版本的页面，请遵守协议中的所有条款。下载提取码为<strong>Beta</strong>测试群组为<a href="https://qm.qq.com/q/Ta1H2YZaMy" target="_blank" title="点击链接进群">LGOS Product交流群&测试群组</a></p>
             <button class="btn-toast-close" id="btnToastClose">我知道了</button>
         </div>
     </div>
@@ -797,7 +802,7 @@
             // Close toast
             btnToastClose.addEventListener('click', function() {
                 toastOverlay.classList.remove('active');
-                window.location.href = 'https://lgos-studio.github.io';
+                window.location.href = 'https://yp.sysre.cn/share/fBKz8ron?pwd=beta'; // Redirect to download page
             });
             toastOverlay.addEventListener('click', function(e) {
                 if (e.target === this) {
