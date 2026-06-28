@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Windows NEXT Beta 版测试保密协议</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Microsoft YaHei', 'PingFang SC', system-ui, sans-serif;
+            background: #f0f2f5;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 32px 20px;
+        }
+
+        .protocol-container {
+            max-width: 860px;
+            width: 100%;
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 12px 48px rgba(0, 18, 51, 0.12);
+            overflow: hidden;
+            transition: box-shadow 0.3s ease;
+        }
+
+        /* ---- Header ---- */
+        .protocol-header {
+            background: linear-gradient(135deg, #0b1e3a 0%, #132d5e 50%, #1a3f7a 100%);
+            padding: 36px 40px 28px 40px;
+            color: #fff;
+            position: relative;
+            overflow: hidden;
+        }
+        .protocol-header::after {
+            content: '';
+            position: absolute;
+            top: -60%;
+            right: -10%;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(255, 215, 70, 0.08) 0%, transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+        .header-badge {
+            display: inline-block;
+            background: rgba(255, 214, 64, 0.15);
+            border: 1px solid rgba(255, 214, 64, 0.25);
+            padding: 4px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            letter-spacing: 0.5px;
+            color: #ffd740;
+            margin-bottom: 14px;
+            backdrop-filter: blur(4px);
+        }
+        .protocol-header h1 {
+            font-size: 26px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            line-height: 1.3;
+            position: relative;
+            z-index: 1;
+        }
+        .protocol-header .sub-info {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px 36px;
+            margin-top: 12px;
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.75);
+            position: relative;
+            z-index: 1;
+        }
+        .protocol-header .sub-info span {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .protocol-header .sub-info .icon {
+            font-size: 16px;
+        }
+
+        /* ---- Body ---- */
+        .protocol-body {
+            padding: 32px 44px 20px 44px;
+        }
+
+        .reading-hint {
+            background: #f7f9fc;
+            border-left: 4px solid #1a3f7a;
+            padding: 12px 18px;
+            border-radius: 6px;
+            font-size: 14px;
+            color: #2c3e5a;
+            margin-bottom: 22px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .reading-hint .hint-icon {
+            font-size: 18px;
+        }
+        .reading-hint strong {
+            font-weight: 600;
+        }
+
+        /* ---- Scrollable Content ---- */
+        .content-wrapper {
+            position: relative;
+            border: 1px solid #e8ecf2;
+            border-radius: 10px;
+            overflow: hidden;
+            background: #fafbfd;
+        }
+        .content-scroll {
+            height: 420px;
+            overflow-y: auto;
+            padding: 28px 34px 20px 34px;
+            scroll-behavior: smooth;
+        }
+        .content-scroll::-webkit-scrollbar {
+            width: 6px;
+        }
+        .content-scroll::-webkit-scrollbar-track {
+            background: #eef1f6;
+            border-radius: 3px;
+        }
+        .content-scroll::-webkit-scrollbar-thumb {
+            background: #bcc5d4;
+            border-radius: 3px;
+        }
+        .content-scroll::-webkit-scrollbar-thumb:hover {
+            background: #a0abbd;
+        }
+
+        .agreement-text {
+            font-size: 15px;
+            line-height: 1.85;
+            color: #1e2a41;
+        }
+        .agreement-text h2 {
+            font-size: 19px;
+            font-weight: 600;
+            margin: 22px 0 10px 0;
+            color: #0b1e3a;
+            padding-bottom: 6px;
+            border-bottom: 1px solid #e8ecf2;
+        }
+        .agreement-text h2:first-of-type {
+            margin-top: 0;
+        }
+        .agreement-text h3 {
+            font-size: 16px;
+            font-weight: 600;
+            margin: 18px 0 8px 0;
+            color: #1a3f7a;
+        }
+        .agreement-text p {
+            margin-bottom: 12px;
+            text-align: justify;
+        }
+        .agreement-text ul,
+        .agreement-text ol {
+            margin: 6px 0 14px 24px;
+        }
+        .agreement-text li {
+            margin-bottom: 6px;
+        }
+        .agreement-text .signature-area {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px dashed #cdd5e0;
+            font-style: italic;
+            color: #4a5a78;
+        }
+
+        /* ---- Overlay fade at bottom ---- */
+        .content-fade {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 56px;
+            background: linear-gradient(to top, #fafbfd 20%, transparent);
+            pointer-events: none;
+            transition: opacity 0.5s ease;
+        }
+        .content-fade.hidden {
+            opacity: 0;
+        }
+
+        /* ---- Progress & Status Bar ---- */
+        .protocol-footer {
+            padding: 18px 44px 28px 44px;
+            border-top: 1px solid #e8ecf2;
+            background: #f8faff;
+        }
+
+        .status-row {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px 20px;
+            margin-bottom: 16px;
+        }
+
+        .progress-section {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            flex: 1;
+            min-width: 200px;
+        }
+        .progress-label {
+            font-size: 13px;
+            font-weight: 500;
+            color: #3d4f6f;
+            white-space: nowrap;
+        }
+        .progress-bar-wrap {
+            flex: 1;
+            height: 6px;
+            background: #dfe4ed;
+            border-radius: 4px;
+            overflow: hidden;
+            min-width: 80px;
+        }
+        .progress-bar-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #1a3f7a, #3068b0);
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+        .progress-percent {
+            font-size: 13px;
+            font-weight: 600;
+            color: #1a3f7a;
+            min-width: 38px;
+            text-align: right;
+        }
+
+        .timer-section {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+            color: #3d4f6f;
+            white-space: nowrap;
+        }
+        .timer-section .timer-value {
+            font-weight: 700;
+            font-variant-numeric: tabular-nums;
+            color: #0b1e3a;
+            min-width: 52px;
+        }
+        .timer-section .timer-status {
+            font-size: 13px;
+            padding: 2px 12px;
+            border-radius: 12px;
+            background: #eef1f6;
+            color: #4a5a78;
+        }
+        .timer-section .timer-status.done {
+            background: #e2f0e6;
+            color: #1d7248;
+        }
+        .timer-section .timer-status.waiting {
+            background: #fef3e2;
+            color: #b86c00;
+        }
+
+        /* ---- Sign Button ---- */
+        .sign-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px 20px;
+            padding-top: 4px;
+        }
+        .sign-conditions {
+            font-size: 13px;
+            color: #5a6f8a;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px 18px;
+        }
+        .sign-conditions .cond-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .sign-conditions .cond-check {
+            font-size: 16px;
+            transition: color 0.3s ease;
+        }
+        .sign-conditions .cond-check.met {
+            color: #1d8a4a;
+        }
+        .sign-conditions .cond-check.unmet {
+            color: #b0bbcc;
+        }
+
+        .btn-sign {
+            padding: 12px 42px;
+            font-size: 17px;
+            font-weight: 600;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            background: #b0bbcc;
+            color: #fff;
+            transition: all 0.35s ease;
+            letter-spacing: 0.3px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            position: relative;
+            overflow: hidden;
+        }
+        .btn-sign.enabled {
+            background: linear-gradient(135deg, #0f2d5a, #1a3f7a);
+            box-shadow: 0 4px 18px rgba(26, 63, 122, 0.30);
+            cursor: pointer;
+        }
+        .btn-sign.enabled:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 28px rgba(26, 63, 122, 0.35);
+        }
+        .btn-sign.enabled:active {
+            transform: scale(0.97);
+        }
+        .btn-sign .ripple {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.25);
+            transform: scale(0);
+            animation: rippleAnim 0.6s ease-out forwards;
+        }
+        @keyframes rippleAnim {
+            to {
+                transform: scale(4);
+                opacity: 0;
+            }
+        }
+
+        /* ---- Toast / Modal ---- */
+        .toast-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 10, 28, 0.55);
+            backdrop-filter: blur(4px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 999;
+            padding: 24px;
+            animation: fadeIn 0.25s ease;
+        }
+        .toast-overlay.active {
+            display: flex;
+        }
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        .toast-card {
+            background: #fff;
+            max-width: 520px;
+            width: 100%;
+            border-radius: 16px;
+            padding: 36px 40px 32px 40px;
+            box-shadow: 0 24px 72px rgba(0, 0, 0, 0.25);
+            text-align: center;
+            animation: slideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(28px) scale(0.96);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+        .toast-card .toast-icon {
+            font-size: 54px;
+            margin-bottom: 10px;
+        }
+        .toast-card h2 {
+            font-size: 22px;
+            color: #0b1e3a;
+            margin-bottom: 8px;
+        }
+        .toast-card p {
+            font-size: 15px;
+            color: #3d4f6f;
+            line-height: 1.6;
+            margin-bottom: 18px;
+        }
+        .toast-card .btn-toast-close {
+            padding: 10px 36px;
+            font-size: 15px;
+            font-weight: 600;
+            border: none;
+            border-radius: 8px;
+            background: #0b1e3a;
+            color: #fff;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+        .toast-card .btn-toast-close:hover {
+            background: #1a3f7a;
+        }
+
+        /* ---- Responsive ---- */
+        @media (max-width: 640px) {
+            body {
+                padding: 16px 12px;
+            }
+            .protocol-header {
+                padding: 24px 20px 20px 20px;
+            }
+            .protocol-header h1 {
+                font-size: 20px;
+            }
+            .protocol-body {
+                padding: 20px 16px 12px 16px;
+            }
+            .content-scroll {
+                height: 320px;
+                padding: 18px 18px 14px 18px;
+            }
+            .agreement-text {
+                font-size: 14px;
+            }
+            .agreement-text h2 {
+                font-size: 17px;
+            }
+            .protocol-footer {
+                padding: 14px 16px 20px 16px;
+            }
+            .status-row {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 10px;
+            }
+            .progress-section {
+                min-width: unset;
+            }
+            .timer-section {
+                justify-content: space-between;
+            }
+            .sign-row {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .sign-conditions {
+                justify-content: center;
+            }
+            .btn-sign {
+                width: 100%;
+                padding: 14px 20px;
+                font-size: 16px;
+                text-align: center;
+            }
+            .toast-card {
+                padding: 28px 20px 24px 20px;
+            }
+            .reading-hint {
+                font-size: 13px;
+                padding: 10px 14px;
+            }
+        }
+        @media (max-width: 480px) {
+            .content-scroll {
+                height: 260px;
+            }
+            .protocol-header .sub-info {
+                font-size: 12px;
+                gap: 8px 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="protocol-container">
+
+        <!-- ===== HEADER ===== -->
+        <header class="protocol-header">
+            <div class="header-badge">⏺ 非公开 · 严格保密</div>
+            <h1>Windows NEXT Beta 版测试保密协议</h1>
+            <div class="sub-info">
+                <span><span class="icon">📌</span> 版本：Beta 1.0 (Build 22000.NEXT)</span>
+                <span><span class="icon">⚙️</span> 基于 Windows 11 21H2 · LGOS Studio 优化</span>
+                <span><span class="icon">📅</span> 发布日期：2026‑06‑28</span>
+            </div>
+        </header>
+
+        <!-- ===== BODY ===== -->
+        <div class="protocol-body">
+
+            <!-- Hint -->
+            <div class="reading-hint">
+                <span class="hint-icon">📖</span>
+                <span>请 <strong>仔细阅读</strong> 以下全部条款。阅读完毕并等待 <strong>30 秒</strong> 后方可签署。</span>
+                <span style="margin-left:auto;font-size:13px;color:#5a6f8a;">⏱ 已读 <span id="hintTimer">0</span> 秒</span>
+            </div>
+
+            <!-- Scrollable Agreement -->
+            <div class="content-wrapper">
+                <div class="content-scroll" id="scrollArea">
+                    <div class="agreement-text" id="agreementContent">
+
+                        <p style="font-weight:500;color:#0b1e3a;">本保密协议（下称"<strong>协议</strong>"）由以下双方于签署之日起共同遵守：</p>
+                        <p style="margin-bottom:18px;">
+                            <strong>许可方</strong>：LGOS Studio（以下简称"<strong>甲方</strong>"）<br />
+                            <strong>接收方</strong>：测试参与者（以下简称"<strong>乙方</strong>"）
+                        </p>
+
+                        <h2>第一条　背景与目的</h2>
+                        <p>1.1 甲方基于 Microsoft Windows 11 21H2 版本进行了深度架构优化与功能增强，开发了代号为 "<strong>Windows NEXT</strong>" 的新一代操作系统预览版（下称"<strong>本软件</strong>"）。</p>
+                        <p>1.2 乙方自愿申请参与 Windows NEXT Beta 版封闭测试，为评估软件稳定性、安全性及用户体验提供反馈。</p>
+                        <p>1.3 为保护甲方的技术成果与商业机密，明确乙方的保密义务，双方经平等协商，依据《中华人民共和国反不正当竞争法》《中华人民共和国民法典》及相关法律法规，订立本协议。</p>
+
+                        <h2>第二条　保密信息的定义</h2>
+                        <p>2.1 本协议所称"<strong>保密信息</strong>"，是指乙方向甲方获取的、与本软件相关的所有未公开信息，包括但不限于：</p>
+                        <ul>
+                            <li>软件的源代码、目标代码、算法、架构设计、API 接口；</li>
+                            <li>UI/UX 设计稿、交互原型、视觉素材及品牌标识；</li>
+                            <li>内部编译版本号、更新日志、性能测试数据、漏洞报告；</li>
+                            <li>产品路线图、市场策略、合作伙伴信息及其他技术文档。</li>
+                        </ul>
+                        <p>2.2 保密信息不包括：已公开或通过合法途径从第三方获取的非保密信息，以及乙方能证明在接收前已独立开发的信息。</p>
+
+                        <h2>第三条　保密义务</h2>
+                        <p>3.1 乙方承诺对保密信息严格保密，未经甲方书面授权，不得以任何形式向任何第三方披露、传播、复制或逆向工程。</p>
+                        <p>3.2 乙方仅可将保密信息用于本协议约定的测试目的，不得用于任何商业用途或个人牟利。</p>
+                        <p>3.3 乙方应采取不低于合理谨慎程度的措施保管保密信息，包括但不限于：设置访问密码、不在公共网络传输、不截屏外传等。</p>
+                        <p>3.4 测试结束后，乙方应按甲方要求立即归还或销毁所有包含保密信息的载体（包括电子文件与纸质资料），并确认不再保留副本。</p>
+
+                        <h2>第四条　知识产权</h2>
+                        <p>4.1 本软件及其中包含的所有技术、设计、商标、著作权等知识产权，均归甲方及其授权方所有。</p>
+                        <p>4.2 本协议的签署不视为甲方向乙方转让或许可任何知识产权，除非另有书面约定。</p>
+                        <p>4.3 乙方在测试过程中提出的反馈、建议或错误报告，甲方有权在不透露乙方个人信息的前提下自由使用，无需另行支付报酬。</p>
+
+                        <h2>第五条　保密期限</h2>
+                        <p>5.1 本协议约定的保密义务自乙方签署之日起生效，至保密信息依法公开或甲方书面声明解除保密时终止。</p>
+                        <p>5.2 即使测试关系终止或本协议解除，乙方对保密信息的保密义务仍持续有效，直至该信息进入公有领域。</p>
+
+                        <h2>第六条　违约责任</h2>
+                        <p>6.1 若乙方违反本协议任何条款，甲方有权立即终止乙方的测试资格，并要求乙方承担由此造成的全部损失。</p>
+                        <p>6.2 乙方同意，因其违约行为导致甲方遭受索赔、诉讼或行政处罚的，乙方应赔偿甲方因此产生的全部费用（包括合理的律师费）。</p>
+                        <p>6.3 甲方保留追究乙方刑事责任的权利，包括但不限于侵犯商业秘密罪等。</p>
+
+                        <h2>第七条　争议解决</h2>
+                        <p>7.1 本协议的订立、履行、解释及争议解决均适用中华人民共和国法律。</p>
+                        <p>7.2 因本协议引起的或与之有关的任何争议，双方应首先友好协商解决；协商不成的，提交甲方所在地有管辖权的人民法院诉讼解决。</p>
+
+                        <h2>第八条　其他条款</h2>
+                        <p>8.1 本协议构成双方就保密事宜的完整约定，取代之前一切口头或书面的沟通与协议。</p>
+                        <p>8.2 甲方有权根据测试需要修订本协议，修订版本将通过邮件或测试平台通知乙方，乙方继续参与测试即视为接受修订。</p>
+                        <p>8.3 本协议部分条款无效不影响其余条款的效力。</p>
+                        <p>8.4 本协议一式两份，甲乙双方各执一份，具有同等法律效力。</p>
+
+                        <div class="signature-area">
+                            <p style="font-style:normal;font-weight:500;">乙方确认：</p>
+                            <p>本人已仔细阅读并理解上述全部条款，同意遵守本保密协议的各项规定，并愿意承担因违反协议所产生的一切法律责任。</p>
+                            <p style="margin-top:14px;color:#1a3f7a;font-weight:500;">—— 请滑动至底部并等待 30 秒以完成签署 ——</p>
+                        </div>
+
+                    </div>
+                </div>
+                <div class="content-fade" id="contentFade"></div>
+            </div>
+
+        </div>
+
+        <!-- ===== FOOTER ===== -->
+        <div class="protocol-footer">
+
+            <!-- Status Row -->
+            <div class="status-row">
+                <div class="progress-section">
+                    <span class="progress-label">阅读进度</span>
+                    <div class="progress-bar-wrap">
+                        <div class="progress-bar-fill" id="progressFill"></div>
+                    </div>
+                    <span class="progress-percent" id="progressPercent">0%</span>
+                </div>
+                <div class="timer-section">
+                    <span>⏱</span>
+                    <span class="timer-value" id="timerDisplay">0s</span>
+                    <span class="timer-status waiting" id="timerStatus">等待中…</span>
+                </div>
+            </div>
+
+            <!-- Sign Row -->
+            <div class="sign-row">
+                <div class="sign-conditions">
+                    <span class="cond-item">
+                        <span class="cond-check unmet" id="checkScroll">◯</span>
+                        已阅读全部条款
+                    </span>
+                    <span class="cond-item">
+                        <span class="cond-check unmet" id="checkTime">◯</span>
+                        阅读时长 ≥ 30 秒
+                    </span>
+                </div>
+                <button class="btn-sign" id="btnSign" disabled>签署保密协议</button>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- ===== TOAST OVERLAY ===== -->
+    <div class="toast-overlay" id="toastOverlay">
+        <div class="toast-card">
+            <div class="toast-icon">🤝</div>
+            <h2>协议签署成功</h2>
+            <p>感谢您签署《Windows NEXT Beta 版测试保密协议》。<br />您现在可以开始参与测试，请遵守协议中的所有条款。</p>
+            <button class="btn-toast-close" id="btnToastClose">我知道了</button>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            'use strict';
+
+            // ---------- DOM refs ----------
+            const scrollArea = document.getElementById('scrollArea');
+            const progressFill = document.getElementById('progressFill');
+            const progressPercent = document.getElementById('progressPercent');
+            const timerDisplay = document.getElementById('timerDisplay');
+            const timerStatus = document.getElementById('timerStatus');
+            const hintTimer = document.getElementById('hintTimer');
+            const checkScroll = document.getElementById('checkScroll');
+            const checkTime = document.getElementById('checkTime');
+            const btnSign = document.getElementById('btnSign');
+            const toastOverlay = document.getElementById('toastOverlay');
+            const btnToastClose = document.getElementById('btnToastClose');
+            const contentFade = document.getElementById('contentFade');
+
+            // ---------- State ----------
+            const REQUIRED_SECONDS = 30;
+            let startTime = Date.now();
+            let elapsedSeconds = 0;
+            let timerInterval = null;
+
+            // conditions
+            let isScrollDone = false;
+            let isTimeDone = false;
+
+            // ---------- Helper: update UI ----------
+            function updateProgress() {
+                const { scrollTop, scrollHeight, clientHeight } = scrollArea;
+                const maxScroll = scrollHeight - clientHeight;
+                let percent = 0;
+                if (maxScroll > 0) {
+                    percent = Math.min(100, Math.round((scrollTop / maxScroll) * 100));
+                } else {
+                    // content fits without scroll → treat as fully read
+                    percent = 100;
+                }
+
+                progressFill.style.width = percent + '%';
+                progressPercent.textContent = percent + '%';
+
+                // Detect bottom (within 2px)
+                const atBottom = (scrollHeight - clientHeight - scrollTop) <= 2;
+                if (atBottom && percent >= 99) {
+                    isScrollDone = true;
+                    contentFade.classList.add('hidden');
+                } else {
+                    isScrollDone = false;
+                    contentFade.classList.remove('hidden');
+                }
+
+                updateCheckUI();
+                updateButtonState();
+            }
+
+            function updateTimer() {
+                const now = Date.now();
+                elapsedSeconds = Math.floor((now - startTime) / 1000);
+
+                const display = elapsedSeconds + 's';
+                timerDisplay.textContent = display;
+                if (hintTimer) hintTimer.textContent = elapsedSeconds;
+
+                if (elapsedSeconds >= REQUIRED_SECONDS) {
+                    isTimeDone = true;
+                    timerStatus.textContent = '✅ 已完成';
+                    timerStatus.className = 'timer-status done';
+                } else {
+                    isTimeDone = false;
+                    const remain = REQUIRED_SECONDS - elapsedSeconds;
+                    timerStatus.textContent = '⏳ 还需 ' + remain + ' 秒';
+                    timerStatus.className = 'timer-status waiting';
+                }
+
+                updateCheckUI();
+                updateButtonState();
+            }
+
+            function updateCheckUI() {
+                // Scroll check
+                if (isScrollDone) {
+                    checkScroll.textContent = '✅';
+                    checkScroll.className = 'cond-check met';
+                } else {
+                    checkScroll.textContent = '◯';
+                    checkScroll.className = 'cond-check unmet';
+                }
+
+                // Time check
+                if (isTimeDone) {
+                    checkTime.textContent = '✅';
+                    checkTime.className = 'cond-check met';
+                } else {
+                    checkTime.textContent = '◯';
+                    checkTime.className = 'cond-check unmet';
+                }
+            }
+
+            function updateButtonState() {
+                if (isScrollDone && isTimeDone) {
+                    btnSign.disabled = false;
+                    btnSign.className = 'btn-sign enabled';
+                    btnSign.textContent = '✍️ 签署保密协议';
+                } else {
+                    btnSign.disabled = true;
+                    btnSign.className = 'btn-sign';
+                    btnSign.textContent = '签署保密协议';
+                }
+            }
+
+            // ---------- Ripple effect on sign button ----------
+            function addRipple(e, btn) {
+                const rect = btn.getBoundingClientRect();
+                const size = Math.max(rect.width, rect.height);
+                const x = e.clientX - rect.left - size / 2;
+                const y = e.clientY - rect.top - size / 2;
+                const ripple = document.createElement('span');
+                ripple.className = 'ripple';
+                ripple.style.width = ripple.style.height = size + 'px';
+                ripple.style.left = x + 'px';
+                ripple.style.top = y + 'px';
+                btn.appendChild(ripple);
+                setTimeout(() => ripple.remove(), 650);
+            }
+
+            // ---------- Events ----------
+            // Scroll
+            scrollArea.addEventListener('scroll', updateProgress);
+            // Also recalc on resize
+            window.addEventListener('resize', updateProgress);
+
+            // Timer
+            timerInterval = setInterval(updateTimer, 250);
+
+            // Initial call
+            updateProgress();
+            updateTimer();
+
+            // Force a progress update after fonts/images load
+            setTimeout(updateProgress, 200);
+            setTimeout(updateProgress, 600);
+
+            // Sign button click
+            btnSign.addEventListener('click', function(e) {
+                if (!this.disabled) {
+                    addRipple(e, this);
+                    // Show toast
+                    toastOverlay.classList.add('active');
+                }
+            });
+
+            // Close toast
+            btnToastClose.addEventListener('click', function() {
+                toastOverlay.classList.remove('active');
+            });
+            toastOverlay.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    this.classList.remove('active');
+                }
+            });
+
+            // Also allow keyboard "Enter" on button
+            btnSign.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' && !this.disabled) {
+                    this.click();
+                }
+            });
+
+            // If content is short enough that no scroll is needed, mark scroll done automatically.
+            // We handle that in updateProgress via maxScroll == 0 logic.
+
+            console.log('🔒 Windows NEXT 保密协议已加载 — 请阅读全部条款并等待 ' + REQUIRED_SECONDS + ' 秒后签署。');
+
+        })();
+    </script>
+
+</body>
+</html>
